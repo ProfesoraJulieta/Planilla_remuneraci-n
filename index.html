@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Planilla de Remuneraciones — Herramienta Pedagógica</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&family=Poppins:wght@700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --ink: #212529;
+            --muted: #6c757d;
+            --accent: #0d6efd;
+            --accent-hover: #0b5ed7;
+            --good: #198754;
+            --bad: #dc3545;
+            --warn: #ffc107;
+            --border-color: #dee2e6;
+            --input-bg: #ffffff;
+            --header-bg: #f1f3f5;
+        }
+
+        html,
+        body {
+            background-color: var(--bg);
+            color: var(--ink);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .wrap {
+            max-width: 1600px;
+            margin: 24px auto 80px;
+            padding: 0 16px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 30, 80, 0.08);
+            padding: 24px;
+            margin-top: 24px;
+        }
+
+        h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 26px;
+            color: var(--accent);
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 12px;
+            margin-top: 0;
+        }
+
+        h3,
+        h4 {
+            font-family: 'Poppins', sans-serif;
+            color: #343a40;
+        }
+
+        h3 {
+            margin-top: 0;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 80px repeat(12, minmax(110px, 1fr));
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .row.descuentos {
+            grid-template-columns: 80px repeat(13, minmax(95px, 1fr));
+        }
+
+        .row.head {
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 11px;
+            color: var(--muted);
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        input[type="number"],
+        input[type="text"] {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--ink);
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: box-shadow 0.2s, border-color 0.2s;
+        }
+
+        input[type="number"] {
+            text-align: right;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
+        }
+
+        /* ESTILOS PARA VALIDACIÓN */
+        .correct {
+            border-color: var(--good) !important;
+            box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.15) !important;
+        }
+
+        .incorrect {
+            border-color: var(--bad) !important;
+            box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.15) !important;
+        }
+
+        .pill {
+            padding: 5px 12px;
+            border-radius: 999px;
+            font-weight: 700;
+            width: max-content;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .pill.good {
+            background-color: rgba(25, 135, 84, 0.1);
+            color: var(--good);
+        }
+
+        .pill.warn {
+            background-color: rgba(255, 193, 7, 0.15);
+            color: #725b0e;
+        }
+
+        .btn {
+            appearance: none;
+            border: 0;
+            background: var(--accent);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+
+        .tableWrap {
+            overflow: auto;
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        th,
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        tr:last-child td {
+            border-bottom: 0;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            background: var(--header-bg);
+            font-weight: 700;
+            text-align: left;
+        }
+
+        table.impuesto {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+
+        table.impuesto th,
+        table.impuesto td {
+            border: 1px solid var(--border-color);
+            padding: 8px 10px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        table.impuesto th {
+            background: var(--header-bg);
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 20, 40, 0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1000;
+        }
+
+        .modal .content {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            max-width: 960px;
+            width: 100%;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        /* NUEVOS ESTILOS PARA SCROLL HORIZONTAL */
+        .grid-scroll-wrapper {
+            overflow-x: auto;
+            padding-bottom: 15px;
+            margin-top: 24px;
+        }
+
+        .grid-content {
+            min-width: 1700px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+
+        <!-- Bloque de Identificación -->
+        <div class="card">
+            <h2>Identificación del Estudiante</h2>
+            <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 250px;">
+                    <label for="student-name" style="font-weight: 700; font-size: 14px;">Nombre Completo</label>
+                    <input type="text" id="student-name" placeholder="Ej: Julieta Galdames" style="text-align: left;">
+                </div>
+                <div style="flex: 1; min-width: 250px;">
+                    <label for="student-course" style="font-weight: 700; font-size: 14px;">Curso</label>
+                    <input type="text" id="student-course" placeholder="Ej: Contabilidad y Tributaria"
+                        style="text-align: left;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Provisionales (resumen) -->
+        <div class="card" id="provisionales-card">
+            <h2 style="margin:0 0 16px;">Casos a Desarrollar (Datos Provisionales)</h2>
+            <div class="tableWrap">
+                <table id="tabla-provisionales">
+                    <thead>
+                        <tr>
+                            <th>Cargo</th>
+                            <th>Sueldo Base</th>
+                            <th>Horas Extras</th>
+                            <th>Bono Imponible</th>
+                            <th>Asig. Colación</th>
+                            <th>Asig. Movilización</th>
+                            <th>Salud</th>
+                            <th>Contrato</th>
+                            <th>AFP</th>
+                            <th>C. Bienestar</th>
+                            <th>C. Sindicato</th>
+                            <th>Otro Desc. Vol.</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="footer">
+                <button class="btn" id="btn-regenerar">Regenerar Casos</button>
+                <button class="btn" id="btn-aceptar">Comenzar Ejercicio</button>
+            </div>
+        </div>
+
+        <!-- PLANILLA -->
+        <div class="card" id="planilla-card" aria-disabled="true" style="opacity:.55; pointer-events:none">
+            <h2 style="margin:0 0 12px;">Completa la Planilla de Remuneraciones</h2>
+
+            <div id="filas-haberes"></div>
+            <div id="filas-descuentos"></div>
+            <div id="filas-patronal"></div>
+
+            <div class="footer">
+                <button class="btn" id="btn-revisar-parcial" style="background-color: #6c757d;">Revisar Avance</button>
+                <button class="btn" id="btn-finalizar">Finalizar y Enviar</button>
+            </div>
+        </div>
+
+        <!-- Bloque con todos los datos de referencia -->
+        <div class="card" id="reference-card">
+            <h3 style="margin:0 0 12px">📊 Datos de Referencia (Valores Ficticios para Ejercicio)</h3>
+            <div class="tableWrap" style="margin:10px 0">
+                <table class="impuesto">
+                    <thead>
+                        <tr>
+                            <th colspan="5">Valores de Referencia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="2"><b>Valor UF</b></td>
+                            <td colspan="3">$35.110,98</td>
+                        </tr>
+                        <tr>
+                            <td><b>UTM</b></td>
+                            <td>$61.157</td>
+                            <td><b>UTA</b></td>
+                            <td colspan="2">$733.884</td>
+                        </tr>
+                        <tr>
+                            <th colspan="5">Rentas Topes Imponible</th>
+                        </tr>
+                        <tr>
+                            <td colspan="3">Afiliados a una AFP (81,6 UF)</td>
+                            <td colspan="2">$2.865.056</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3">Seguro de cesantía (122,6 UF)</td>
+                            <td colspan="2">$4.304.606</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4 style="margin:18px 0 8px">Tasas AFP y SIS (Dependientes)</h4>
+            <div class="tableWrap">
+                <table class="impuesto">
+                    <thead>
+                        <tr>
+                            <th>AFP</th>
+                            <th>Tasa AFP</th>
+                            <th>SIS (Empleador)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-afp-ui"></tbody>
+                </table>
+            </div>
+
+            <h4 style="margin:18px 0 8px">Tabla de Impuesto Único de Segunda Categoría (Mensual)</h4>
+            <div class="tableWrap">
+                <table class="impuesto" id="tabla-impuesto">
+                    <thead>
+                        <tr>
+                            <th>Tramo</th>
+                            <th>Renta desde</th>
+                            <th>Renta hasta</th>
+                            <th>Factor</th>
+                            <th>Rebaja</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>$0</td>
+                            <td>$825.618</td>
+                            <td>Exento</td>
+                            <td>$0</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>$825.619</td>
+                            <td>$1.834.710</td>
+                            <td>4%</td>
+                            <td>$33.024,78</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>$1.834.711</td>
+                            <td>$3.057.850</td>
+                            <td>8%</td>
+                            <td>$106.413,18</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>$3.057.851</td>
+                            <td>$4.280.990</td>
+                            <td>14%</td>
+                            <td>$274.594,93</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>$4.280.991</td>
+                            <td>$5.504.130</td>
+                            <td>23%</td>
+                            <td>$681.288,98</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>$5.504.131</td>
+                            <td>$7.338.840</td>
+                            <td>30%</td>
+                            <td>$1.088.594,60</td>
+                        </tr>
+                        <tr>
+                            <td>7</td>
+                            <td>$7.338.841</td>
+                            <td>$18.958.670</td>
+                            <td>35%</td>
+                            <td>$1.426.181,24</td>
+                        </tr>
+                        <tr>
+                            <td>8</td>
+                            <td>$18.958.671</td>
+                            <td>y más</td>
+                            <td>40%</td>
+                            <td>$2.374.114,74</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Éxito -->
+    <div class="modal" id="modal-result">
+        <div class="content">
+            <div id="result-body"></div>
+            <div class="footer">
+                <button class="btn" onclick="closeModal()">Siguiente Ejercicio</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Error Individual -->
+    <div class="modal" id="modal-error">
+        <div class="content">
+            <h3 id="error-title" style="color: var(--bad); font-family: 'Poppins', sans-serif; margin-top:0;"></h3>
+            <p id="error-message" style="font-size: 16px;"></p>
+            <div
+                style="background: #e9ecef; padding: 14px; border-radius: 8px; margin-top: 16px; border-left: 4px solid var(--accent);">
+                <strong style="color: #0d6efd;">💡 ¿Cómo resolverlo?</strong>
+                <p id="error-solution" style="margin: 4px 0 0; color: #495057;"></p>
+            </div>
+            <div class="footer">
+                <button class="btn" onclick="closeErrorModal()">Entendido, lo corrijo</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === Parámetros base ===
+        const AFP_RATES = [
+            { name: 'Capital', rate: 0.1144 }, { name: 'Cuprum', rate: 0.1144 }, { name: 'Habitat', rate: 0.1127 }, { name: 'PlanVital', rate: 0.1116 }, { name: 'Provida', rate: 0.1145 }, { name: 'Modelo', rate: 0.1058 }, { name: 'Uno', rate: 0.1069 },
+        ];
+        const SIS_RATE = 0.0154; // Aporte Empleador
+        const MUTUAL_BASE_RATE = 0.0093; // Aporte Empleador (Tasa base Ley 16.744)
+        const CESANTIA_TRAB_IND = 0.006; // Aporte Trabajador Contrato Indefinido
+        const CESANTIA_TRAB_FIJO = 0.0; // Aporte Trabajador Contrato Plazo Fijo
+        const CESANTIA_EMP_IND = 0.024; // Aporte Empleador Contrato Indefinido
+        const CESANTIA_EMP_FIJO = 0.03; // Aporte Empleador Contrato Plazo Fijo
+        const SALUD_FONASA = 0.07;
+        const VALOR_UF = 35110.98; // UF referencia
+
+        const TAX_BRACKETS = [
+            { min: 0, max: 825618, factor: 0, rebaja: 0 },
+            { min: 825619, max: 1834710, factor: 0.04, rebaja: 33024.78 },
+            { min: 1834711, max: 3057850, factor: 0.08, rebaja: 106413.18 },
+            { min: 3057851, max: 4280990, factor: 0.14, rebaja: 274594.93 },
+            { min: 4280991, max: 5504130, factor: 0.23, rebaja: 681288.98 },
+            { min: 5504131, max: 7338840, factor: 0.30, rebaja: 1088594.60 },
+            { min: 7338841, max: 18958670, factor: 0.35, rebaja: 1426181.24 },
+            { min: 18958671, max: Infinity, factor: 0.40, rebaja: 2374114.74 },
+        ];
+
+        let onModalCloseCallback = null;
+
+        // ===== URL DE CONEXIÓN A GOOGLE SHEETS =====
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyRPvw9oOrQFVVNbpqOBuZ00a4SKh7EarH7JpZtj6Wb9IyNfyrkRPr4Fpi7P42MgOtf/exec';
+        let startTime; // Para medir el tiempo
+
+        function calcImpuestoUnico(tributable) {
+            for (const b of TAX_BRACKETS) {
+                if (tributable >= b.min && tributable <= b.max) {
+                    return Math.max(0, Math.round(tributable * b.factor - b.rebaja));
+                }
+            }
+            return 0;
+        }
+
+        const currency = n => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(n || 0);
+        const parse = v => Number(String(v).replace(/\./g, '')) || 0;
+        const tol = (a, b, eps = 1) => Math.abs(a - b) <= eps;
+
+        /**
+         * Checks if a user's value is correct, allowing for standard rounding or truncation.
+         * It compares the input against the rounded and truncated versions of the expected raw value.
+         */
+        function isValueCorrect(inputValue, rawExpectedValue) {
+            const rounded = Math.round(rawExpectedValue);
+            const truncated = Math.trunc(rawExpectedValue);
+            // A value is correct if it's exactly the rounded result OR the truncated result.
+            // A small tolerance is added to handle minor typing differences.
+            return tol(inputValue, rounded) || tol(inputValue, truncated);
+        }
+
+        let provisionales = [];
+        const tbodyProv = document.querySelector('#tabla-provisionales tbody');
+        function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min }
+        function randChoice(arr) { return arr[Math.floor(Math.random() * arr.length)] }
+        function randFloat(min, max) { return Math.random() * (max - min) + min }
+        function byId(id) { return document.getElementById(id) }
+
+        function genProvisionales() {
+            provisionales = [1, 2].map(i => {
+                const sueldo = randInt(460000, 3500000);
+                const saludTipo = randChoice(['FONASA', 'ISAPRE']);
+                const isapreUF = saludTipo === 'ISAPRE' ? Number(randFloat(2, 10).toFixed(2)) : null;
+                const tieneCargas = Math.random() > 0.5;
+                const colacion = tieneCargas ? randInt(20000, 80000) : 0;
+                const movilizacion = tieneCargas ? randInt(20000, 80000) : 0;
+                const state = randInt(0, 3);
+                let cuotaBienestar = 0;
+                let cuotaSindicato = 0;
+                if (state === 1) { cuotaBienestar = randInt(4000, 6000); }
+                else if (state === 2) { cuotaSindicato = randInt(4000, 6000); }
+                else if (state === 3) { cuotaBienestar = randInt(4000, 6000); cuotaSindicato = randInt(4000, 6000); }
+                return { cargo: i, sueldoBase: sueldo, horasExtras: randInt(0, 25), bonoImponible: randInt(0, 500000), colacion, movilizacion, salud: saludTipo, isapreUF, contrato: randChoice(['Indefinido', 'Plazo Fijo']), afp: randChoice(AFP_RATES).name, descVol: randInt(0, 50000), cuotaBienestar, cuotaSindicato };
+            });
+            paintProvisionales();
+        }
+
+        function paintProvisionales() {
+            tbodyProv.innerHTML = provisionales.map(p => `
+    <tr>
+      <td><b>${p.cargo}</b></td>
+      <td>${currency(p.sueldoBase)}</td>
+      <td>${p.horasExtras}</td>
+      <td>${currency(p.bonoImponible)}</td>
+      <td>${currency(p.colacion)}</td>
+      <td>${currency(p.movilizacion)}</td>
+      <td><span class="pill ${p.salud === 'FONASA' ? 'good' : 'warn'}">${p.salud}${p.salud === 'ISAPRE' ? ' (' + (p.isapreUF.toFixed(2).replace('.', ',')) + ' UF)' : ''}</span></td>
+      <td>${p.contrato}</td>
+      <td>${p.afp}</td>
+      <td>${currency(p.cuotaBienestar)}</td>
+      <td>${currency(p.cuotaSindicato)}</td>
+      <td>${currency(p.descVol)}</td>
+    </tr>`).join('');
+        }
+
+        document.getElementById('btn-regenerar').addEventListener('click', genProvisionales);
+        genProvisionales();
+
+        const filasHaberes = document.getElementById('filas-haberes');
+        const filasDes = document.getElementById('filas-descuentos');
+        const filasPat = document.getElementById('filas-patronal');
+        function field(id, placeholder = '0') { return `<input type="number" min="0" step="1" inputmode="numeric" id="${id}" placeholder="${placeholder}" required />` }
+
+        function buildRows() {
+            // Limpiar contenido previo
+            filasHaberes.innerHTML = '';
+            filasDes.innerHTML = '';
+            filasPat.innerHTML = '';
+
+            // --- Sección 1: Haberes ---
+            let haberesHTML = `
+    <div class="grid-scroll-wrapper">
+      <div class="grid-content">
+        <h3 style="margin-top:0">1. Haberes (Ingresos)</h3>
+        <div class="row head">
+          <div>Cargo</div><div>Sueldo Base</div><div>Gratificación Legal</div><div>Valor Horas Extras</div><div>Bono imponible</div>
+          <div style="background:#e7f5ff; border-radius:8px; padding:8px; color:#1864ab;">Total imponible</div>
+          <div>Asig. Colación</div><div>Asig. Movilización</div>
+          <div style="background:#e7f5ff; border-radius:8px; padding:8px; color:#1864ab;">Total No Imponible</div>
+          <div style="background:#d3f9d8; border-radius:8px; padding:8px; color:#2b8a3e;">Total Haberes</div>
+          <div style="background:#ffe3e3; border-radius:8px; padding:8px; color:#c92a2a; font-weight:700">Total Tributable</div>
+          <div></div>
+        </div>`;
+            for (let i = 1; i <= 2; i++) {
+                haberesHTML += `<div class="row"><div><b>${i}</b></div><div>${field(`b_${i}`)}</div><div>${field(`g_${i}`)}</div><div>${field(`he_${i}`)}</div><div>${field(`bi_${i}`)}</div><div>${field(`ti_${i}`)}</div><div>${field(`ac_${i}`)}</div><div>${field(`am_${i}`)}</div><div>${field(`tni_${i}`)}</div><div>${field(`th_${i}`)}</div><div>${field(`tt_${i}`)}</div><div></div></div>`;
+            }
+            haberesHTML += `</div></div>`;
+            filasHaberes.innerHTML = haberesHTML;
+
+            // --- Sección 2: Descuentos ---
+            let descuentosHTML = `
+    <div class="grid-scroll-wrapper">
+      <div class="grid-content">
+        <h3 style="margin-top:0">2. Descuentos Legales y Otros</h3>
+        <div class="row head descuentos">
+          <div>Cargo</div><div>AFP</div><div>Salud (7%)</div><div>Adicional Salud</div><div>Seguro Cesantía</div><div>Impuesto Único</div>
+          <div style="background:#e7f5ff; border-radius:8px; padding:8px; color:#1864ab;">Total Descuento Legal</div>
+          <div>C. Bienestar</div><div>C. Sindicato</div><div>Otro Desc. Vol.</div>
+          <div style="background:#fff9db; border-radius:8px; padding:8px; color:#e67700;">Total Descuentos</div>
+          <div style="background:#343a40; border-radius:8px; padding:8px; color:white; font-weight:700">Líquido a Pagar</div>
+          <div></div>
+        </div>`;
+            for (let i = 1; i <= 2; i++) {
+                descuentosHTML += `<div class="row descuentos"><div><b>${i}</b></div><div>${field(`afp_${i}`)}</div><div>${field(`salud_${i}`)}</div><div>${field(`adisalud_${i}`)}</div><div>${field(`sc_${i}`)}</div><div>${field(`imp_${i}`)}</div><div>${field(`tdl_${i}`)}</div><div>${field(`cb_${i}`)}</div><div>${field(`cs_${i}`)}</div><div>${field(`odv_${i}`)}</div><div>${field(`td_${i}`)}</div><div>${field(`liq_${i}`)}</div><div></div></div>`;
+            }
+            descuentosHTML += `</div></div>`;
+            filasDes.innerHTML = descuentosHTML;
+
+            // --- Sección 3: Aportes del Empleador ---
+            let patronalHTML = `
+    <div class="grid-scroll-wrapper">
+      <div class="grid-content">
+        <h3 style="margin-top:0">3. Aportes del Empleador</h3>
+        <div class="row head">
+          <div>Cargo</div><div>Total Imponible</div><div>Mutual (0.93%)</div><div>SIS</div><div>S. Cesantía</div><div style="background:#d3f9d8; border-radius:8px; padding:8px; color:#2b8a3e;">TOTAL APORTES</div><div></div><div></div><div></div><div></div><div></div><div></div>
+        </div>`;
+            for (let i = 1; i <= 2; i++) {
+                patronalHTML += `<div class="row"><div><b>${i}</b></div><div>${field(`pat_imp_${i}`)}</div><div>${field(`pat_mut_${i}`)}</div><div>${field(`pat_sis_${i}`)}</div><div>${field(`pat_sc_${i}`)}</div><div>${field(`pat_tot_${i}`)}</div><div></div><div></div><div></div><div></div><div></div><div></div></div>`;
+            }
+            patronalHTML += `</div></div>`;
+            filasPat.innerHTML = patronalHTML;
+        }
+
+        /**
+         * Función mejorada para formatear números, ignorando caracteres no numéricos.
+         */
+        function formatInputAsCurrency(event) {
+            const input = event.target;
+            let numericString = input.value.replace(/[^0-9]/g, '');
+
+            if (numericString === '') {
+                input.value = '';
+                return;
+            }
+
+            const numericValue = parseInt(numericString, 10);
+            input.value = new Intl.NumberFormat('es-CL').format(numericValue);
+        }
+
+        buildRows();
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', formatInputAsCurrency);
+        });
+
+        const planilla = document.getElementById('planilla-card');
+        document.getElementById('btn-aceptar').addEventListener('click', () => {
+            planilla.style.opacity = '1';
+            planilla.style.pointerEvents = 'auto';
+            startTime = Date.now();
+        });
+
+        function showErrorModal(title, message, solution, callback) {
+            onModalCloseCallback = callback;
+            byId('error-title').textContent = title;
+            byId('error-message').textContent = message;
+            byId('error-solution').innerHTML = solution;
+            byId('modal-error').style.display = 'flex';
+        }
+
+        function closeErrorModal() {
+            byId('modal-error').style.display = 'none';
+            if (typeof onModalCloseCallback === 'function') {
+                onModalCloseCallback();
+                onModalCloseCallback = null;
+            }
+        }
+
+        function openModal(callback) {
+            onModalCloseCallback = callback;
+            byId('modal-result').style.display = 'flex';
+        }
+
+        function closeModal() {
+            byId('modal-result').style.display = 'none';
+            if (typeof onModalCloseCallback === 'function') {
+                onModalCloseCallback();
+                onModalCloseCallback = null;
+            }
+        }
+
+        function resetApp() {
+            const inputs = document.querySelectorAll('#planilla-card input[type="number"]');
+            inputs.forEach(input => {
+                input.value = '';
+                input.classList.remove('correct', 'incorrect'); // Limpiar clases
+            });
+            const planilla = byId('planilla-card');
+            planilla.style.opacity = '0.55';
+            planilla.style.pointerEvents = 'none';
+            genProvisionales();
+            startTime = null;
+            window.scrollTo(0, 0);
+        }
+
+        /**
+         * Recopila todos los valores ingresados por el estudiante en un objeto.
+         */
+        function recopilarDatosIngresados() {
+            const datos = {};
+            const campos = [
+                'b_1', 'g_1', 'he_1', 'bi_1', 'ti_1', 'ac_1', 'am_1', 'tni_1', 'th_1', 'tt_1',
+                'afp_1', 'salud_1', 'adisalud_1', 'sc_1', 'imp_1', 'tdl_1', 'cb_1', 'cs_1', 'odv_1', 'td_1', 'liq_1',
+                'pat_imp_1', 'pat_mut_1', 'pat_sis_1', 'pat_sc_1', 'pat_tot_1',
+                'b_2', 'g_2', 'he_2', 'bi_2', 'ti_2', 'ac_2', 'am_2', 'tni_2', 'th_2', 'tt_2',
+                'afp_2', 'salud_2', 'adisalud_2', 'sc_2', 'imp_2', 'tdl_2', 'cb_2', 'cs_2', 'odv_2', 'td_2', 'liq_2',
+                'pat_imp_2', 'pat_mut_2', 'pat_sis_2', 'pat_sc_2', 'pat_tot_2'
+            ];
+
+            campos.forEach(id => {
+                datos[id] = parse(byId(id).value);
+            });
+
+            return datos;
+        }
+
+        /**
+         * Envía todos los datos del intento actual a la planilla de Google.
+         */
+        function registrarIntentoEnHoja(resultado, detalle) {
+            if (!startTime) return;
+
+            const nombre = byId('student-name').value || 'Anónimo';
+            const curso = byId('student-course').value || 'No especificado';
+
+            if (nombre.trim() === '' || curso.trim() === '') {
+                alert('Por favor, ingresa tu Nombre y Curso antes de finalizar el ejercicio.');
+                return false;
+            }
+
+            const tiempoTranscurrido = Math.round((Date.now() - startTime) / 1000);
+
+            const payload = {
+                nombre: nombre,
+                curso: curso,
+                tiempo: tiempoTranscurrido,
+                resultado: resultado,
+                detalle: detalle,
+                entradas: recopilarDatosIngresados()
+            };
+
+            fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+                .then(() => console.log("Registro de intento enviado."))
+                .catch(err => console.error("Error al enviar registro:", err));
+            return true;
+        }
+
+        /**
+         * Lógica de validación que solo marca los campos como correctos o incorrectos.
+         * Devuelve un array con los errores encontrados.
+         */
+        function validarCampos() {
+            // Limpiar clases de validación anteriores
+            document.querySelectorAll('#planilla-card input[type="number"]').forEach(input => {
+                input.classList.remove('correct', 'incorrect');
+            });
+
+            const allErrors = [];
+            for (let i = 1; i <= 2; i++) {
+                const prov = provisionales.find(p => p.cargo === i);
+
+                // Obtener elementos y valores
+                const bInput = byId(`b_${i}`), gInput = byId(`g_${i}`), heInput = byId(`he_${i}`), biInput = byId(`bi_${i}`), tiInput = byId(`ti_${i}`), acInput = byId(`ac_${i}`), amInput = byId(`am_${i}`), tniInput = byId(`tni_${i}`), thInput = byId(`th_${i}`), ttInput = byId(`tt_${i}`);
+                const afpValInput = byId(`afp_${i}`), saludInput = byId(`salud_${i}`), adisaludInput = byId(`adisalud_${i}`), scInput = byId(`sc_${i}`), impInput = byId(`imp_${i}`);
+                const patImpInput = byId(`pat_imp_${i}`), patMutInput = byId(`pat_mut_${i}`), patSisInput = byId(`pat_sis_${i}`), patScInput = byId(`pat_sc_${i}`), patTotInput = byId(`pat_tot_${i}`);
+
+                const b = parse(bInput.value), g = parse(gInput.value), he = parse(heInput.value), bi = parse(biInput.value), ti = parse(tiInput.value), ac = parse(acInput.value), am = parse(amInput.value), tni = parse(tniInput.value), th = parse(thInput.value), tt = parse(ttInput.value);
+                const afpVal = parse(afpValInput.value), salud = parse(saludInput.value), adisalud = parse(adisaludInput.value), sc = parse(scInput.value), imp = parse(impInput.value);
+                const pat_imp = parse(patImpInput.value), pat_mut = parse(patMutInput.value), pat_sis = parse(patSisInput.value), pat_sc = parse(patScInput.value), pat_tot = parse(patTotInput.value);
+
+                // --- VALIDACIONES ---
+                const gRaw = b * 0.25;
+                const gExp = Math.round(gRaw);
+                if (!isValueCorrect(g, gRaw)) { allErrors.push({ cargo: i, title: "Error en Gratificación Legal", message: `Para el Cargo ${i}, la gratificación (${currency(g)}) es incorrecta.`, solution: `La gratificación legal (Art. 50) es el 25% del sueldo base. El cálculo correcto es: <strong>${currency(b)} × 25% = ${currency(gExp)}</strong>.` }); gInput.classList.add('incorrect'); } else { gInput.classList.add('correct'); }
+
+                const valorHoraExtraRaw = prov.horasExtras > 0 ? (((b / 30) * 7) / 45) * 1.5 * prov.horasExtras : 0;
+                const valorHoraExtraExp = Math.round(valorHoraExtraRaw);
+                if (!isValueCorrect(he, valorHoraExtraRaw)) { allErrors.push({ cargo: i, title: "Error en Valor Horas Extras", message: `Para el Cargo ${i}, el valor de las horas extras (${currency(he)}) es incorrecto.`, solution: `El valor por ${prov.horasExtras} horas extras, considerando un sueldo de ${currency(b)} y 45 horas semanales, es de <strong>${currency(valorHoraExtraExp)}</strong>.` }); heInput.classList.add('incorrect'); } else { heInput.classList.add('correct'); }
+
+                const tiExp = b + gExp + valorHoraExtraExp + prov.bonoImponible;
+                if (!tol(ti, tiExp, 50)) { tiInput.classList.add('incorrect'); } else { tiInput.classList.add('correct'); }
+
+                const tniExp = prov.colacion + prov.movilizacion;
+                if (!tol(tni, tniExp, 50)) { tniInput.classList.add('incorrect'); } else { tniInput.classList.add('correct'); }
+
+                const thExp = tiExp + tniExp;
+                if (!tol(th, thExp, 50)) { thInput.classList.add('incorrect'); } else { thInput.classList.add('correct'); }
+
+                if (!tol(tt, tiExp, 50)) { ttInput.classList.add('incorrect'); } else { ttInput.classList.add('correct'); }
+
+                const afpInfo = AFP_RATES.find(a => a.name.toLowerCase() === prov.afp.toLowerCase());
+                const afpRaw = Math.min(tiExp, 2865056) * afpInfo.rate;
+                const afpExp = Math.round(afpRaw);
+                if (!isValueCorrect(afpVal, afpRaw)) { allErrors.push({ cargo: i, title: "Error en Descuento AFP", message: `El descuento para la AFP ${prov.afp} no es correcto.`, solution: `La tasa para ${prov.afp} es del <strong>${(afpInfo.rate * 100).toFixed(2)}%</strong> sobre el imponible (con tope). El descuento debería ser <strong>${currency(afpExp)}</strong>.` }); afpValInput.classList.add('incorrect'); } else { afpValInput.classList.add('correct'); }
+
+                const min7Raw = Math.min(tiExp, 2865056) * SALUD_FONASA;
+                const min7 = Math.round(min7Raw);
+                if (prov.salud === 'ISAPRE') {
+                    const planPesos = Math.round(prov.isapreUF * VALOR_UF);
+                    if (!isValueCorrect(salud, min7Raw)) { allErrors.push({ cargo: i, title: "Error en Salud (7%) para ISAPRE", message: `El valor en "Salud (7%)" no es correcto.`, solution: `Independiente del plan, este campo siempre debe contener el 7% legal del imponible (con tope). El valor correcto es <strong>${currency(min7)}</strong>.` }); saludInput.classList.add('incorrect'); } else { saludInput.classList.add('correct'); }
+                    const adisRaw = Math.max(0, planPesos - min7);
+                    if (!isValueCorrect(adisalud, adisRaw)) { allErrors.push({ cargo: i, title: "Error en Adicional Salud (ISAPRE)", message: `El adicional de salud no es correcto.`, solution: `Tu plan de ${prov.isapreUF} UF equivale a ${currency(planPesos)}. La diferencia a pagar sobre el 7% legal (${currency(min7)}) es <strong>${currency(Math.round(adisRaw))}</strong>.` }); adisaludInput.classList.add('incorrect'); } else { adisaludInput.classList.add('correct'); }
+                } else { // FONASA
+                    if (!isValueCorrect(salud, min7Raw)) { allErrors.push({ cargo: i, title: "Error en Cotización de Salud (FONASA)", message: `El descuento de FONASA no es correcto.`, solution: `FONASA siempre es el <strong>7%</strong> del imponible (con tope). El descuento debe ser <strong>${currency(min7)}</strong>.` }); saludInput.classList.add('incorrect'); } else { saludInput.classList.add('correct'); }
+                    if (adisalud !== 0) { allErrors.push({ cargo: i, title: "Error en Adicional de Salud (FONASA)", message: `El campo "Adicional Salud" debe ser cero con FONASA.`, solution: `No hay adicional para FONASA. Este campo debe ser <strong>0</strong>.` }); adisaludInput.classList.add('incorrect'); } else { adisaludInput.classList.add('correct'); }
+                }
+
+                let scRate = prov.contrato === 'Indefinido' ? CESANTIA_TRAB_IND : CESANTIA_TRAB_FIJO;
+                const scRaw = Math.min(tiExp, 4304606) * scRate;
+                let scExp = Math.round(scRaw);
+                if (!isValueCorrect(sc, scRaw)) { allErrors.push({ cargo: i, title: "Error en Seguro de Cesantía (Trabajador)", message: `El descuento por S. de Cesantía no es correcto.`, solution: `Para un contrato <strong>${prov.contrato}</strong>, el aporte del trabajador es del <strong>${(scRate * 100).toFixed(1)}%</strong> sobre el imponible (con tope). El valor correcto es <strong>${currency(scExp)}</strong>.` }); scInput.classList.add('incorrect'); } else { scInput.classList.add('correct'); }
+
+                const impExp = calcImpuestoUnico(tiExp - afpExp - min7 - scExp);
+                if (!tol(imp, impExp, 50)) { impInput.classList.add('incorrect'); } else { impInput.classList.add('correct'); }
+
+                if (!tol(pat_imp, tiExp, 50)) { patImpInput.classList.add('incorrect'); } else { patImpInput.classList.add('correct'); }
+
+                const mutRaw = tiExp * MUTUAL_BASE_RATE;
+                const mutExp = Math.round(mutRaw);
+                if (!isValueCorrect(pat_mut, mutRaw)) { allErrors.push({ cargo: i, title: "Error en Aporte a la Mutual", message: `El aporte a la Mutual no es correcto.`, solution: `Se calcula con la tasa base del <strong>${(MUTUAL_BASE_RATE * 100).toFixed(2)}%</strong> sobre el imponible. El cálculo correcto es <strong>${currency(mutExp)}</strong>.` }); patMutInput.classList.add('incorrect'); } else { patMutInput.classList.add('correct'); }
+
+                const sisRaw = Math.min(tiExp, 2865056) * SIS_RATE;
+                const sisExp = Math.round(sisRaw);
+                if (!isValueCorrect(pat_sis, sisRaw)) { allErrors.push({ cargo: i, title: "Error en Aporte SIS", message: `El aporte al SIS no es correcto.`, solution: `Este aporte es del <strong>${(SIS_RATE * 100).toFixed(2)}%</strong> sobre el imponible (con tope). El cálculo correcto es <strong>${currency(sisExp)}</strong>.` }); patSisInput.classList.add('incorrect'); } else { patSisInput.classList.add('correct'); }
+
+                let scEmpRate = prov.contrato === 'Indefinido' ? CESANTIA_EMP_IND : CESANTIA_EMP_FIJO;
+                const scEmpRaw = Math.min(tiExp, 4304606) * scEmpRate;
+                let scEmpExp = Math.round(scEmpRaw);
+                if (!isValueCorrect(pat_sc, scEmpRaw)) { allErrors.push({ cargo: i, title: "Error en S. Cesantía (Empleador)", message: `El aporte del empleador al S. de Cesantía no es correcto.`, solution: `Para un contrato <strong>${prov.contrato}</strong>, el aporte es del <strong>${(scEmpRate * 100).toFixed(1)}%</strong> sobre el imponible (con tope). El valor correcto es <strong>${currency(scEmpExp)}</strong>.` }); patScInput.classList.add('incorrect'); } else { patScInput.classList.add('correct'); }
+
+                const totalPatronalExp = mutExp + sisExp + scEmpExp;
+                if (!tol(pat_tot, totalPatronalExp, 50)) { patTotInput.classList.add('incorrect'); } else { patTotInput.classList.add('correct'); }
+            }
+            return allErrors;
+        }
+
+
+        /**
+         * Función final que se ejecuta al presionar "Finalizar y Enviar".
+         * Valida, muestra errores detallados y envía los datos.
+         */
+        function revisarFinal() {
+            const nombre = byId('student-name').value || '';
+            const curso = byId('student-course').value || '';
+
+            if (nombre.trim() === '' || curso.trim() === '') {
+                alert('Por favor, completa tu Nombre y Curso en la parte superior para poder registrar tu intento.');
+                return;
+            }
+
+            const allErrors = validarCampos();
+
+            if (allErrors.length > 0) {
+                // Registrar el primer error encontrado
+                const primerError = allErrors[0];
+                registrarIntentoEnHoja('Error', `${primerError.title} (Cargo ${primerError.cargo})`);
+
+                let errorQueue = [...allErrors];
+                function showErrorFromQueue() {
+                    if (errorQueue.length === 0) {
+                        return;
+                    }
+                    const error = errorQueue.shift();
+                    showErrorModal(error.title, error.message, error.solution, showErrorFromQueue);
+                }
+                showErrorFromQueue();
+            } else {
+                // Si no hay errores, registrar el éxito
+                if (registrarIntentoEnHoja('Éxito', 'Cálculos correctos')) {
+                    const body = byId('result-body');
+                    body.innerHTML = `<h2 style="text-align:center; color: var(--good); margin-top:0; border:0;">¡Felicidades!</h2><p style="text-align:center; font-size: 18px; margin-bottom:0;">Has completado el ejercicio correctamente. Todos tus cálculos son precisos.</p>`;
+                    openModal(resetApp);
+                }
+            }
+        }
+
+        document.getElementById('btn-finalizar').addEventListener('click', revisarFinal);
+        document.getElementById('btn-revisar-parcial').addEventListener('click', validarCampos);
+
+        (function () {
+            const tb = document.getElementById('tabla-afp-ui');
+            if (tb) { tb.innerHTML = AFP_RATES.map(a => `<tr><td>${a.name}</td><td>${(a.rate * 100).toFixed(2)}%</td><td>${(SIS_RATE * 100).toFixed(2)}%</td></tr>`).join(''); }
+        })();
+    </script>
+</body>
+
+</html>
